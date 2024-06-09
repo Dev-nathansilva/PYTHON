@@ -15,7 +15,7 @@ PROJETO FINAL SEGUNDA BIG DATA COM PYTHON
 
 
 ## Instalar Bibliotecas
-1. pip install streamlit pandas seaborn plotly
+1. pip install streamlit pandas folium streamlit-folium seaborn plotly
 
 ## Executar
 1. streamlit run home.py
