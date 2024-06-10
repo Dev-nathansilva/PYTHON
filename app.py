@@ -1,30 +1,35 @@
 import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 import plotly.express as px
 import streamlit as st
+import seaborn as sns
 import pandas as pd
-import numpy as np
-import folium
-from streamlit_folium import st_folium
-from datetime import datetime
 import calendar
 import locale
+import folium
+
+from streamlit_folium import st_folium
+from datetime import datetime
 
 # Configurando o ambiente para português
 locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 
-
 # Função para carregar os dados
-def carrega_dados(file_path):
+def carrega_dados(file_path, delimitador):
     try:
-        dados = pd.read_csv(file_path)
+        dados = pd.read_csv(file_path, delimiter = delimitador)
         return dados
     except Exception as e:
         st.error(f"Erro ao carregar os dados: {e}")
         return pd.DataFrame()
+    
+# Extraindo o DDD e mapeando para o estado
+def extract_ddd(phone_number):
+    return str(phone_number)[:2]
 
 # Carregar os dados
-dados_estados = carrega_dados("dados/DDD-estado.csv")
-dados_leads = carrega_dados("dados/Leads.csv")
+dados_estados = carrega_dados("dados/DDD-estado.csv", ",")
+dados_leads = carrega_dados("dados/Leads.csv", ",")
 
 # Calcular o valor do faturamento e a quantidade de leads que fecharam
 valor_contrato = 7000
@@ -44,32 +49,11 @@ leads_fechados['Data'] = pd.to_datetime(leads_fechados['Data'])
 leads_fechados['Mês'] = leads_fechados['Data'].dt.month
 mes_mais_fechamentos = leads_fechados['Mês'].value_counts().idxmax()
 
-# Calcular o estado com mais fechamentos de contrato
-ddd_estados = pd.read_csv("dados/DDD-estado.csv", delimiter=";")
-ddd_estados_dict = dict(zip(ddd_estados["DDD"], ddd_estados["Estado"]))
+
+ddd_estados_dict = dict(zip(dados_estados["DDD"], dados_estados["Estado"]))
 leads_fechados["Estado"] = leads_fechados["DDD + Telefone:"].astype(str).str[:2].astype(int).map(ddd_estados_dict)
 estado_mais_fechamentos = leads_fechados["Estado"].value_counts().idxmax()
 quantidade_contratos_estado = leads_fechados["Estado"].value_counts().max()
-
-# Dados fictícios para o exemplo
-categorias = ['A', 'B', 'C', 'D']
-valores = [10, 15, 7, 25]
-porcentagens = [10, 15, 35, 40]
-
-# Gráfico de área (exemplo)
-x = np.arange(10)
-y = np.random.randn(10).cumsum()
-
-fig_area = go.Figure(data=go.Scatter(x=x, y=y, fill='tozeroy'))
-fig_area.update_layout(title='Gráfico de Área', template='plotly_dark')
-
-
-
-# Gráfico de barra horizontal
-# fig_bar = go.Figure(data=[go.Bar(y=categorias, x=valores, orientation='h')])
-# fig_bar.update_layout(title='Gráfico de Barra Horizontal', xaxis_title='Valores', yaxis_title='Categorias', template='plotly_dark')
-
-
 
 # Gráfico de barra horizontal
 contagem_nao_fechou = dados_leads['Por que não fechou?'].value_counts()
@@ -101,19 +85,60 @@ fig_pie.update_traces(
     hovertemplate='<b>%{label}</b> <br> <b>Total Leads: %{value}</b>'
 )
 
-# Criar o mapa do Folium
-m = folium.Map(location=[-23.5505, -46.6333], zoom_start=12)  # Localização fictícia (São Paulo, Brasil)
-# Adicionar um marcador
-folium.Marker([-23.5505, -46.6333], popup="São Paulo").add_to(m)
+
+# Dicionário para mapear DDDs por estados
+ddd_to_estado = {str(row['DDD']): row['UF'] for _, row in dados_estados.iterrows()}
+
+# Extraindo o DDD e mapeando para o estado
+dados_leads['DDD'] = dados_leads['DDD + Telefone:'].apply(lambda x: extract_ddd(x))
+dados_leads['Estado'] = dados_leads['DDD'].map(lambda x: ddd_to_estado.get(x, 'Desconhecido'))
+
+# Filtrando dados de leads que fecharam e não fecharam contrato
+dados_fechou = dados_leads[dados_leads['Status:'] == 'Fechou contrato']
+dados_nao_fechou = dados_leads[dados_leads['Status:'] != 'Fechou contrato']
+
+# Contando leads por estado
+estado_fechou_counts = dados_fechou['Estado'].value_counts()
+estado_nao_fechou_counts = dados_nao_fechou['Estado'].value_counts()
+
+# Criando o mapa do Folium
+mapa = folium.Map(location=[-14.235004, -51.92528], zoom_start=4)
+
+# Iterando sobre os estados e adicionando marcadores ao mapa
+for _, row in dados_estados.iterrows():
+    estado_nome = row['UF']
+    lat = row['Latitude']
+    lon = row['Longitude']
+    
+    fechou = estado_fechou_counts.get(estado_nome, 0)
+    nao_fechou = estado_nao_fechou_counts.get(estado_nome, 0)
+    
+     # Criando a descrição do marcador
+    tooltip_html = f'''
+        <div style='width: 300px; height: 80px;'>
+            <h3 style='margin-bottom: 10px;'> {estado_nome} </h3>
+            <p style='margin-top: -5px; font-size: 15px;'>Fecharam: {fechou}</p>
+            <p style='margin-top: -15px; font-size: 15px;'>Não fecharam: {nao_fechou}</p>
+        </div>
+    '''   
+
+    # Adicionando o marcador ao mapa
+    folium.Marker(
+        location=[lat, lon],
+        # popup=popup_text,
+        tooltip=tooltip_html,
+        icon=folium.Icon(color='blue')
+    ).add_to(mapa)
+
 
 # Layout do Streamlit
 st.set_page_config(layout="wide")
+st.title("Dashboard Figueiredo correia (BPC-LOAS) autismo")
 
-st.title("Dashboard com Plotly e Streamlit")
 # Adicionando o link para o Font Awesome no cabeçalho HTML
 st.markdown(
     """
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     """,
     unsafe_allow_html=True
 )
@@ -165,13 +190,44 @@ with col3:
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.plotly_chart(fig_area, use_container_width=True)
+    st.markdown("<h3 style='margin-top: 1.5rem;'>Análise de Leads por Estado</h3>", unsafe_allow_html=True)
+
+    # Filtros
+    option = st.selectbox(
+        "Selecione o tipo de leads para mostrar:",
+        ("Ambos", "Fechou contrato", "Não fechou contrato")
+    )
+
+    # Preparando os dados para o gráfico empilhado
+    estado_counts = dados_leads['Estado'].value_counts()
+    estados = estado_counts.index
+    fechou_values = estado_fechou_counts.reindex(estados, fill_value=0)
+    nao_fechou_values = estado_nao_fechou_counts.reindex(estados, fill_value=0)
+
+    # Gráfico de barras para leads por estado
+    fig, ax = plt.subplots()
+
+    if option == "Ambos":
+        ax.bar(estados, fechou_values, label='Fechou contrato', color='green')
+        ax.bar(estados, nao_fechou_values, bottom=fechou_values, label='Não fechou contrato', color='red')
+    elif option == "Fechou contrato":
+        sns.barplot(x=estado_fechou_counts.index, y=estado_fechou_counts.values, ax=ax, color='green', label='Fechou contrato')
+    elif option == "Não fechou contrato":
+        sns.barplot(x=estado_nao_fechou_counts.index, y=estado_nao_fechou_counts.values, ax=ax, color='red', label='Não fechou contrato')
+
+    plt.xticks(rotation=90)
+    plt.legend()
+    st.pyplot(fig)
 
 with col2:
+    st.markdown("<h3 style='margin-top: 1.5rem;'>Porque não fecharam?</h3>", unsafe_allow_html=True)
     st.plotly_chart(fig_bar, use_container_width=True)
 
 with col3:
+    st.markdown("<h3 style='margin-top: 1.5rem;'>Distribuição Percentual de Contatos</h3>", unsafe_allow_html=True)
     st.plotly_chart(fig_pie, use_container_width=True)
 
+
 # Adicionando o mapa do Folium ocupando toda a largura abaixo dos outros gráficos
-st_folium(m, width=None, height=600)
+st.title("Distribuição dos Leads no Mapa do Brasil")
+st_folium(mapa, width=None, height=600)
