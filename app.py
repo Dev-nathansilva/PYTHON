@@ -149,12 +149,12 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown(
         f"""
-        <div style='background-color: gray; padding: 20px; border-radius: 5px;'>
-            <h5 style='color: white;'> <i class="fa-solid fa-sack-dollar" style="color: #FFD43B;"></i> Valor do Faturamento Total</h5>
-            <p style='color: rgb(241 241 241); font-size: 40px; margin-top: -20px; font-weight:bold;'>R$ {valor_faturamento:,.2f} <i class="fa-solid fa-arrow-up" style=" color: rgb(9 227 9); font-size: 25px; margin-top: -10px; position: relative; top: -4px;;"></i></p>
+        <div style='background-color: #e0e0e0; padding: 20px; border-radius: 5px; border:1px solid;'>
+            <h5 style='color: #000;'> <i class="fa-solid fa-sack-dollar" style="color: #000;"></i> Valor do Faturamento Total</h5>
+            <p style='color:rgb(110 110 110); font-size: 40px; margin-top: -20px; font-weight:bold;'>R$ {valor_faturamento:,.2f} <i class="fa-solid fa-arrow-up" style=" color: rgb(18 150 18); font-size: 25px; margin-top: -10px; position: relative; top: -4px;;"></i></p>
             <div style="display: flex; gap: 8px; margin-top: -15px; align-items: center;">
-                <p style='color: white;'>Qtdº de Leads que Fecharam</p>
-                <p style='color: white;'><span style='font-weight: bold;'>{qtd_leads_fechados}</span> / {total_leads} ({porcentagem_fechados:.2f}%)</p>
+                <p style='color: #000;'>Qtdº de Leads que Fecharam</p>
+                <p style='color: #000;'><span style='font-weight: bold;'>{qtd_leads_fechados}</span> / {total_leads} ({porcentagem_fechados:.2f}%)</p>
             </div>
         </div>
         """, unsafe_allow_html=True
@@ -163,12 +163,12 @@ with col1:
 with col2:
     st.markdown(
         f"""
-        <div style='background-color: gray; padding: 20px; border-radius: 5px;'>
-            <h5 style='color: white;'><i class="fa-solid fa-user-group"></i> Qtd de Leads Qualificados</h5>
-            <p style='color: rgb(75 199 255); font-size: 40px; margin-top:-20px; font-weight:bold;'>{qtd_leads_qualificados} LEADS</p>
+        <div style='background-color: #e0e0e0; padding: 20px; border-radius: 5px; border:1px solid;'>
+            <h5 style='color: #000;'><i class="fa-solid fa-user-group"></i> Qtd de Leads Qualificados</h5>
+            <p style='color: rgb(0 129 187); font-size: 40px; margin-top:-20px; font-weight:bold;'>{qtd_leads_qualificados} LEADS</p>
             <div style="display: flex; gap: 8px; margin-top: -15px; align-items: center;">
-                <p style='color: white;'>Porcentagem de Leads Qualificados</p>
-                <p style='color: white;'><span style='font-weight: bold;'>{porcentagem_qualificados:.2f}%</span> de {total_leads} leads</p>
+                <p style='color: #000;'>Porcentagem de Leads Qualificados</p>
+                <p style='color: #000;'><span style='font-weight: bold;'>{porcentagem_qualificados:.2f}%</span> de {total_leads} leads</p>
             </div>
         </div>
         """, unsafe_allow_html=True
@@ -177,11 +177,11 @@ with col2:
 with col3:
     st.markdown(
         f"""
-        <div style='background-color: gray; padding: 20px; padding-bottom: 6px; border-radius: 5px;'>
-            <h5 style='color: white;'><i class="fa-solid fa-calendar-check"></i> Mês com Mais Fechamentos</h5>
-            <p style='color: rgb(75 199 255); font-size: 30px; margin-top: -20px; font-weight:bold;'>{calendar.month_name[mes_mais_fechamentos].capitalize()} de {datetime.now().year}</p>
-            <p style='color: white; margin-top: -10px;'>Estado com Mais Fechamentos</p>
-            <p style='color: white; margin-top: -16px;'><span style='font-weight: bold;'>{estado_mais_fechamentos} - {quantidade_contratos_estado} contratos</span></p>
+        <div style='background-color: #e0e0e0; padding: 20px; padding-bottom: 6px; border-radius: 5px; border:1px solid;'>
+            <h5 style='color: #000;'><i class="fa-solid fa-calendar-check"></i> Mês com Mais Fechamentos</h5>
+            <p style='color: rgb(0 129 187); font-size: 30px; margin-top: -20px; font-weight:bold;'>{calendar.month_name[mes_mais_fechamentos].capitalize()} de {datetime.now().year}</p>
+            <p style='color: #000; margin-top: -10px;'>Estado com Mais Fechamentos</p>
+            <p style='color: #000; margin-top: -16px;'><span style='font-weight: bold;'>{estado_mais_fechamentos} - {quantidade_contratos_estado} contratos</span></p>
         </div>
         """, unsafe_allow_html=True
     )
