@@ -5,14 +5,12 @@ import streamlit as st
 import seaborn as sns
 import pandas as pd
 import calendar
-import locale
 import folium
 
 from streamlit_folium import st_folium
 from datetime import datetime
 
-# Configurando o ambiente para português
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 
 # Função para carregar os dados
 def carrega_dados(file_path, delimitador):
