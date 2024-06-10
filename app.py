@@ -4,18 +4,10 @@ import plotly.express as px
 import streamlit as st
 import seaborn as sns
 import pandas as pd
-import calendar
-import locale
 import folium
 
 from streamlit_folium import st_folium
 from datetime import datetime
-
-# Lista com os nomes dos meses em português
-meses_portugues = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-]
 
 # Função para carregar os dados
 def carrega_dados(file_path, delimitador):
@@ -29,6 +21,12 @@ def carrega_dados(file_path, delimitador):
 # Extraindo o DDD e mapeando para o estado
 def extract_ddd(phone_number):
     return str(phone_number)[:2]
+
+# Lista com os nomes dos meses em português
+meses_portugues = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+]
 
 # Carregar os dados
 dados_estados = carrega_dados("dados/DDD-estado.csv", ",")
@@ -203,25 +201,38 @@ with col1:
 
     # Preparando os dados para o gráfico empilhado
     estado_counts = dados_leads['Estado'].value_counts()
+    if option == "Fechou contrato":
+        estado_counts = estado_fechou_counts
+    elif option == "Não fechou contrato":
+        estado_counts = estado_nao_fechou_counts
     estados = estado_counts.index
     fechou_values = estado_fechou_counts.reindex(estados, fill_value=0)
     nao_fechou_values = estado_nao_fechou_counts.reindex(estados, fill_value=0)
 
-    # Gráfico de barras para leads por estado
-    fig, ax = plt.subplots()
-
+    # Gráfico de barras para leads por estado com Plotly
     if option == "Ambos":
-        ax.bar(estados, fechou_values, label='Fechou contrato', color='green')
-        ax.bar(estados, nao_fechou_values, bottom=fechou_values, label='Não fechou contrato', color='red')
+        fig_estado = go.Figure(data=[
+            go.Bar(name='Fechou contrato', x=estados, y=fechou_values, marker_color='green', hovertemplate='Estado: %{x}<br>Fechou: %{y}'),
+            go.Bar(name='Não fechou contrato', x=estados, y=nao_fechou_values, marker_color='red', base=fechou_values, hovertemplate='Estado: %{x}<br>Não fechou: %{y}')
+        ])
     elif option == "Fechou contrato":
-        sns.barplot(x=estado_fechou_counts.index, y=estado_fechou_counts.values, ax=ax, color='green', label='Fechou contrato')
+        fig_estado = go.Figure(data=[
+            go.Bar(name='Fechou contrato', x=estados, y=fechou_values, marker_color='green', hovertemplate='Estado: %{x}<br>Fechou: %{y}')
+        ])
     elif option == "Não fechou contrato":
-        sns.barplot(x=estado_nao_fechou_counts.index, y=estado_nao_fechou_counts.values, ax=ax, color='red', label='Não fechou contrato')
+        fig_estado = go.Figure(data=[
+            go.Bar(name='Não fechou contrato', x=estados, y=nao_fechou_values, marker_color='red', hovertemplate='Estado: %{x}<br>Não fechou: %{y}')
+        ])
 
-    plt.xticks(rotation=90)
-    plt.legend()
-    st.pyplot(fig)
+    fig_estado.update_layout(
+        barmode='stack',
+        title='',
+        xaxis_title='Estados',
+        yaxis_title='Quantidade de Leads',
+        template='plotly_dark'
+    )
 
+    st.plotly_chart(fig_estado, use_container_width=True)
 with col2:
     st.markdown("<h3 style='margin-top: 1.5rem;'>Porque não fecharam?</h3>", unsafe_allow_html=True)
     st.plotly_chart(fig_bar, use_container_width=True)
