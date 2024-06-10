@@ -11,13 +11,11 @@ import folium
 from streamlit_folium import st_folium
 from datetime import datetime
 
-# Configurando o ambiente para português
-try:
-    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-except locale.Error:
-    # Se falhar, defina para a localidade padrão do sistema
-    locale.setlocale(locale.LC_ALL, '')
-
+# Lista com os nomes dos meses em português
+meses_portugues = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+]
 
 # Função para carregar os dados
 def carrega_dados(file_path, delimitador):
@@ -53,7 +51,7 @@ porcentagem_qualificados = (qtd_leads_qualificados / total_leads) * 100 if total
 leads_fechados['Data'] = pd.to_datetime(leads_fechados['Data'])
 leads_fechados['Mês'] = leads_fechados['Data'].dt.month
 mes_mais_fechamentos = leads_fechados['Mês'].value_counts().idxmax()
-
+nome_mes_mais_fechamentos = meses_portugues[mes_mais_fechamentos - 1]
 
 ddd_estados_dict = dict(zip(dados_estados["DDD"], dados_estados["Estado"]))
 leads_fechados["Estado"] = leads_fechados["DDD + Telefone:"].astype(str).str[:2].astype(int).map(ddd_estados_dict)
@@ -184,7 +182,7 @@ with col3:
         f"""
         <div style='background-color: #e0e0e0; padding: 20px; padding-bottom: 6px; border-radius: 5px; border:1px solid;'>
             <h5 style='color: #000;'><i class="fa-solid fa-calendar-check"></i> Mês com Mais Fechamentos</h5>
-            <p style='color: rgb(0 129 187); font-size: 30px; margin-top: -20px; font-weight:bold;'>{calendar.month_name[mes_mais_fechamentos].capitalize()} de {datetime.now().year}</p>
+            <p style='color: rgb(0 129 187); font-size: 30px; margin-top: -20px; font-weight:bold;'>{nome_mes_mais_fechamentos} de {datetime.now().year}</p>
             <p style='color: #000; margin-top: -10px;'>Estado com Mais Fechamentos</p>
             <p style='color: #000; margin-top: -16px;'><span style='font-weight: bold;'>{estado_mais_fechamentos} - {quantidade_contratos_estado} contratos</span></p>
         </div>
