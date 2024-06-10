@@ -11,6 +11,9 @@ import folium
 from streamlit_folium import st_folium
 from datetime import datetime
 
+# Configurando o ambiente para português
+locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+
 
 # Função para carregar os dados
 def carrega_dados(file_path, delimitador):
