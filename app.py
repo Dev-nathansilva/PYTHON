@@ -5,11 +5,11 @@ import streamlit as st
 import seaborn as sns
 import pandas as pd
 import calendar
+import locale
 import folium
 
 from streamlit_folium import st_folium
 from datetime import datetime
-
 
 
 # Função para carregar os dados
