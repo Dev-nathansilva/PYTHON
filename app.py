@@ -12,7 +12,11 @@ from streamlit_folium import st_folium
 from datetime import datetime
 
 # Configurando o ambiente para português
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+try:
+    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+except locale.Error:
+    # Se falhar, defina para a localidade padrão do sistema
+    locale.setlocale(locale.LC_ALL, '')
 
 
 # Função para carregar os dados
