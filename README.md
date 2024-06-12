@@ -1,5 +1,9 @@
 # PYTHON
-PROJETO FINAL SEGUNDA BIG DATA COM PYTHON
+PROJETO FINAL DA DISCIPLINA EXTENSIONISTA - TÓPICOS DE BIG DATA EM PYTHON (SEG)
+- hospedado no streamlit
+<pre>
+  https://teste-projeto.streamlit.app/ 
+</pre>
 
 ## Requisitos
 
@@ -12,6 +16,9 @@ PROJETO FINAL SEGUNDA BIG DATA COM PYTHON
 2. cd venv_Linux/bin/
 3. . activate
 4. cd ../../
+
+## Executar Em Ambiente Windows
+venv/Scripts/Activate
 
 
 ## Instalar Bibliotecas
